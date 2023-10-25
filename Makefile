@@ -11,7 +11,7 @@ BUILD_MODE ?= opt # can also be dbg
 BUILD_CACHE ?= $(TEMP)/xla_extension
 OPENXLA_GIT_REPO ?= https://github.com/openxla/xla.git
 
-OPENXLA_GIT_REV ?= b938cfdf2d4e9a5f69c494a316e92638c1a119ef
+OPENXLA_GIT_REV ?= 7a7cee6e31a01d0103c41b753c7e7fe6e0eeece8
 
 # Private configuration
 BAZEL_FLAGS = --define "framework_shared_object=false" -c $(BUILD_MODE)
