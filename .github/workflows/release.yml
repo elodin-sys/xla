@@ -23,6 +23,8 @@ jobs:
   linux:
     name: "x86_64-linux-gnu-{cpu,tpu}"
     needs: [create_draft_release]
+    permissions:
+      contents: write
     # We intentionally build on ubuntu 20 to compile against
     # an older version of glibc
     runs-on: ubuntu-20.04
@@ -81,6 +83,8 @@ jobs:
     name: "aarch64-darwin-cpu (cross-compiled)"
     needs: [create_draft_release]
     runs-on: macos-12
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - run: brew install elixir
@@ -109,6 +113,8 @@ jobs:
     # so we always build these off-CI
     if: false
     name: "x86_64-linux-gnu-${{ matrix.xla_target }}"
+    permissions:
+      contents: write
     needs: [create_draft_release]
     runs-on: ubuntu-20.04
     strategy:
@@ -184,6 +190,8 @@ jobs:
   linux_arm:
     name: "aarch64-linux-gnu-cpu (cross-compiled)"
     needs: [create_draft_release]
+    permissions:
+      contents: write
     # We intentionally build on ubuntu 20 to compile against
     # an older version of glibc
     runs-on: ubuntu-20.04
