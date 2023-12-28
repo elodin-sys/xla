@@ -6,12 +6,14 @@ load("@tsl//tsl:tsl.bzl", "tsl_grpc_cc_dependencies",)
 load("@tsl//tsl:tsl.bzl", "transitive_hdrs",)
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+load(":static-lib.bzl", "cc_static_library")
 
 package(default_visibility=["//visibility:private"])
 
-# Shared library which contains the subset of XLA required for EXLA
-cc_binary(
-  name = "libxla_extension.so",
+# Static library which contains dependencies necessary for building on
+# top of XLA
+cc_static_library(
+  name = "libxla_extension",
   deps = [
     "//xla:xla_proto_cc_impl",
     "//xla:xla_data_proto_cc_impl",
@@ -91,24 +93,6 @@ cc_binary(
   + if_rocm([
     "//xla/stream_executor:rocm_platform"
   ]),
-  copts = ["-fvisibility=default"],
-  linkopts= select({
-    "@tsl//tsl:macos": [
-        # We set the install_name, such that the library is looked up
-        # in the RPATH at runtime, otherwise the install_name is an
-        # arbitrary path within bazel workspace
-        "-Wl,-install_name,@rpath/libxla_extension.so",
-        # We set RPATH to the same dir as libxla_extension.so, so that
-        # loading PjRt plugins in the same directory works out of the box
-        "-Wl,-rpath,@loader_path/",
-    ],
-    "//conditions:default": [
-        "-Wl,-soname,libxla_extension.so",
-        "-Wl,-rpath='$$ORIGIN'",
-    ],
-  }),
-  features = ["-use_header_modules"],
-  linkshared = 1,
 )
 
 # Transitive hdrs gets all headers required by deps, including
@@ -117,7 +101,71 @@ cc_binary(
 transitive_hdrs(
   name = "xla_extension_dep_headers",
   deps = [
-    ":libxla_extension.so",
+    "//xla:xla_proto_cc_impl",
+    "//xla:xla_data_proto_cc_impl",
+    "//xla/service:hlo_proto_cc_impl",
+    "//xla/service:memory_space_assignment_proto_cc_impl",
+    "//xla/service/gpu:backend_configs_cc_impl",
+    "//xla/stream_executor:dnn_proto_cc_impl",
+    "//xla:literal",
+    "//xla:shape_util",
+    "//xla:status",
+    "//xla:statusor",
+    "//xla:types",
+    "//xla:util",
+    "//xla/client:xla_computation",
+    "//xla/mlir/utils:error_util",
+    "//xla/mlir_hlo",
+    "//xla/mlir_hlo:all_passes",
+    "//xla/pjrt:mlir_to_hlo",
+    "//xla/client/lib:lu_decomposition",
+    "//xla/client/lib:math",
+    "//xla/client/lib:qr",
+    "//xla/client/lib:svd",
+    "//xla/client/lib:self_adjoint_eig",
+    "//xla/client/lib:sorting",
+    "//xla/mlir_hlo:mhlo_passes",
+    "//xla/translate/hlo_to_mhlo:hlo_to_mlir_hlo",
+    "//xla/pjrt:interpreter_device",
+    "//xla/pjrt:pjrt_client",
+    "//xla/pjrt:pjrt_compiler",
+    "//xla/pjrt:tfrt_cpu_pjrt_client",
+    "//xla/pjrt:pjrt_c_api_client",
+    "//xla/pjrt:tpu_client",
+    "//xla/pjrt:pjrt_plugin_device_client",
+    "//xla/pjrt:pjrt_plugin_device_client_headers",
+    "//xla/pjrt/distributed",
+    "//xla/pjrt/gpu:se_gpu_pjrt_client",
+    "//xla/pjrt/distributed:client",
+    "//xla/pjrt/distributed:service",
+    "@com_google_absl//absl/types:span",
+    "@com_google_absl//absl/types:optional",
+    "@com_google_absl//absl/base:log_severity",
+    "@com_google_protobuf//:protobuf",
+    "@llvm-project//llvm:Support",
+    "@llvm-project//mlir:FuncDialect",
+    "@llvm-project//mlir:IR",
+    "@llvm-project//mlir:Parser",
+    "@llvm-project//mlir:Pass",
+    "@llvm-project//mlir:ReconcileUnrealizedCasts",
+    "@llvm-project//mlir:SparseTensorDialect",
+    "@tf_runtime//:core_runtime",
+    "@tf_runtime//:hostcontext",
+    "@tsl//tsl/platform:errors",
+    "@tsl//tsl/platform:fingerprint",
+    "@tsl//tsl/platform:float8",
+    "@tsl//tsl/platform:statusor",
+    "@tsl//tsl/platform:env_impl",
+    "@tsl//tsl/platform:tensor_float_32_utils",
+    "@tsl//tsl/profiler/utils:time_utils_impl",
+    "@tsl//tsl/profiler/backends/cpu:annotation_stack_impl",
+    "@tsl//tsl/profiler/backends/cpu:traceme_recorder_impl",
+    "@tsl//tsl/protobuf:autotuning_proto_cc_impl",
+    "@tsl//tsl/protobuf:protos_all_cc_impl",
+    "@tsl//tsl/protobuf:dnn_proto_cc_impl",
+    "@tsl//tsl/framework:allocator",
+    "@tsl//tsl/framework:allocator_registry_impl",
+    "@tsl//tsl/util:determinism",
   ]
 )
 
@@ -193,19 +241,16 @@ genrule(
   """
 )
 
-# This genrule remaps libxla_extension.so to lib/libxla_extension.so
+# This genrule remaps libxla_extension.a to lib/libxla_extension.a
 genrule(
   name = "xla_extension_lib",
   srcs = [
-    ":libxla_extension.so",
-  ]
-  + if_with_tpu_support([
-    ":libtpu_so"
-  ]),
+    ":libxla_extension",
+  ],
   outs = ["lib"],
   cmd = """
     mkdir $@
-    mv $(SRCS) $@
+    cp $(locations :libxla_extension) $@
   """
 )
 

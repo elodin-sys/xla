@@ -29,6 +29,9 @@ jobs:
     # an older version of glibc
     runs-on: ubuntu-20.04
     steps:
+      - name: Install libtool-bin
+        run: |
+          sudo apt-get update && sudo apt-get install -y libtool-bin
       - uses: actions/checkout@v3
       - uses: erlef/setup-beam@v1
         with:
@@ -149,7 +152,7 @@ jobs:
           # Add repository with the latest git version for action/checkout to properly clone the repo
           add-apt-repository ppa:git-core/ppa
           # We run as root, so sudo is not necessary per se, but some actions (like setup-bazel) make use of it
-          apt-get update && apt-get install -y ca-certificates curl git sudo unzip wget
+          apt-get update && apt-get install -y ca-certificates curl git sudo unzip wget libtool-bin
           # Install GitHub CLI used by our scripts
           curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
@@ -195,6 +198,9 @@ jobs:
     # an older version of glibc
     runs-on: ubuntu-20.04
     steps:
+      - name: Install libtool-bin
+        run: |
+          sudo apt-get update && sudo apt-get install -y libtool-bin
       - uses: actions/checkout@v3
       - uses: erlef/setup-beam@v1
         with:
