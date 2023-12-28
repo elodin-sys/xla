@@ -118,7 +118,6 @@ jobs:
   linux_cuda:
     # Currently the build takes longer than the job time limit (6h),
     # so we always build these off-CI
-    if: false
     name: "x86_64-linux-gnu-${{ matrix.xla_target }}"
     permissions:
       contents: write
@@ -140,9 +139,6 @@ jobs:
             python: "3.11"
     container: ${{ matrix.container }}
     env:
-      # This env is normally set by default, but we need to mirror it into the container
-      # ourselves (used by the actions/setup-beam).
-      ImageOS: ubuntu20
       # Set the missing UTF-8 locale, otherwise Elixir warns
       LC_ALL: C.UTF-8
       # Make sure installing packages (like tzdata) doesn't prompt for configuration
