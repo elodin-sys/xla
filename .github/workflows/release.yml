@@ -27,7 +27,7 @@ jobs:
       contents: write
     # We intentionally build on ubuntu 20 to compile against
     # an older version of glibc
-    runs-on: ubuntu-large
+    runs-on: ubuntu-large-20.04
     steps:
       - name: Install libtool-bin
         run: |
@@ -123,7 +123,7 @@ jobs:
     permissions:
       contents: write
     needs: [create_draft_release]
-    runs-on: ubuntu-large
+    runs-on: ubuntu-large-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -201,7 +201,7 @@ jobs:
       contents: write
     # We intentionally build on ubuntu 20 to compile against
     # an older version of glibc
-    runs-on: ubuntu-large
+    runs-on: ubuntu-large-20.04
     steps:
       - name: Install libtool-bin
         run: |
