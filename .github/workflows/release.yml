@@ -86,7 +86,7 @@ jobs:
   macos_arm:
     name: "aarch64-darwin-cpu (cross-compiled)"
     needs: [create_draft_release]
-    runs-on: macos-13-xlarge
+    runs-on: macos-latest-large
     permissions:
       contents: write
     steps:

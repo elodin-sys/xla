@@ -11,7 +11,7 @@ BUILD_MODE ?= opt # can also be dbg
 BUILD_CACHE ?= $(TEMP)/xla_extension
 OPENXLA_GIT_REPO ?= https://github.com/openxla/xla.git
 
-OPENXLA_GIT_REV ?= 771e38178340cbaaef8ff20f44da5407c15092cb
+OPENXLA_GIT_REV ?= 0b476d54327ff20efddd50cb2bf0a0422fbb16e1
 
 # Private configuration
 BAZEL_FLAGS = --define "framework_shared_object=false" -c $(BUILD_MODE)
@@ -26,6 +26,7 @@ $(BUILD_ARCHIVE): $(OPENXLA_DIR) extension/BUILD
 	rm -f $(OPENXLA_XLA_EXTENSION_DIR) && \
 		ln -s "$(ROOT_DIR)/extension" $(OPENXLA_XLA_EXTENSION_DIR) && \
 		cd $(OPENXLA_DIR) && \
+        cat $(ROOT_DIR)/WORKSPACE >> WORKSPACE && \
 		bazel build $(BAZEL_FLAGS) $(BUILD_FLAGS) $(BUILD_INTERNAL_FLAGS) //$(OPENXLA_XLA_EXTENSION_NS):xla_extension && \
 		mkdir -p $(dir $(BUILD_ARCHIVE)) && \
 		cp -f $(OPENXLA_XLA_BUILD_ARCHIVE) $(BUILD_ARCHIVE)
