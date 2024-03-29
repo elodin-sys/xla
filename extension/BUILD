@@ -69,7 +69,6 @@ cc_static_library(
     "@llvm-project//mlir:SparseTensorDialect",
     "@tsl//tsl/platform:errors",
     "@tsl//tsl/platform:fingerprint",
-    "@tsl//tsl/platform:float8",
     "@tsl//tsl/platform:statusor",
     "@tsl//tsl/platform:env_impl",
     "@tsl//tsl/platform:tensor_float_32_utils",
@@ -80,7 +79,6 @@ cc_static_library(
     "@tsl//tsl/protobuf:dnn_proto_cc_impl",
     "@tsl//tsl/framework:allocator",
     "@tsl//tsl/framework:allocator_registry_impl",
-    "@tsl//tsl/util:determinism",
   ]
   # GRPC Dependencies (needed for PjRt distributed)
   + tsl_grpc_cc_dependencies()
@@ -100,13 +98,19 @@ cc_static_library(
 # of unused headers as well
 transitive_hdrs(
   name = "xla_extension_dep_headers",
-  deps = [
+  deps =  [
     "//xla:xla_proto_cc_impl",
     "//xla:xla_data_proto_cc_impl",
     "//xla/service:hlo_proto_cc_impl",
-    "//xla/service:memory_space_assignment_proto_cc_impl",
+    "//xla/service/memory_space_assignment:memory_space_assignment_proto_cc_impl",
+    "//xla/service:buffer_assignment_proto_cc_impl",
     "//xla/service/gpu:backend_configs_cc_impl",
-    "//xla/stream_executor:dnn_proto_cc_impl",
+    "//xla/service/gpu/model:hlo_op_profile_proto_cc_impl",
+    "//xla/stream_executor:device_description_proto_cc_impl",
+    "//xla:autotune_results_proto_cc_impl",
+    "//xla/stream_executor:stream_executor_impl",
+    "//xla/stream_executor/gpu:gpu_init_impl",
+    "//xla/stream_executor/host:host_platform",
     "//xla:literal",
     "//xla:shape_util",
     "//xla:status",
@@ -131,13 +135,11 @@ transitive_hdrs(
     "//xla/pjrt:pjrt_compiler",
     "//xla/pjrt:tfrt_cpu_pjrt_client",
     "//xla/pjrt:pjrt_c_api_client",
-    "//xla/pjrt:tpu_client",
-    "//xla/pjrt:pjrt_plugin_device_client",
-    "//xla/pjrt:pjrt_plugin_device_client_headers",
     "//xla/pjrt/distributed",
     "//xla/pjrt/gpu:se_gpu_pjrt_client",
     "//xla/pjrt/distributed:client",
     "//xla/pjrt/distributed:service",
+    "//xla:autotuning_proto_cc_impl",
     "@com_google_absl//absl/types:span",
     "@com_google_absl//absl/types:optional",
     "@com_google_absl//absl/base:log_severity",
@@ -149,24 +151,21 @@ transitive_hdrs(
     "@llvm-project//mlir:Pass",
     "@llvm-project//mlir:ReconcileUnrealizedCasts",
     "@llvm-project//mlir:SparseTensorDialect",
-    "@tf_runtime//:core_runtime",
-    "@tf_runtime//:hostcontext",
     "@tsl//tsl/platform:errors",
     "@tsl//tsl/platform:fingerprint",
-    "@tsl//tsl/platform:float8",
     "@tsl//tsl/platform:statusor",
     "@tsl//tsl/platform:env_impl",
     "@tsl//tsl/platform:tensor_float_32_utils",
     "@tsl//tsl/profiler/utils:time_utils_impl",
     "@tsl//tsl/profiler/backends/cpu:annotation_stack_impl",
     "@tsl//tsl/profiler/backends/cpu:traceme_recorder_impl",
-    "@tsl//tsl/protobuf:autotuning_proto_cc_impl",
     "@tsl//tsl/protobuf:protos_all_cc_impl",
     "@tsl//tsl/protobuf:dnn_proto_cc_impl",
     "@tsl//tsl/framework:allocator",
     "@tsl//tsl/framework:allocator_registry_impl",
-    "@tsl//tsl/util:determinism",
   ]
+  # GRPC Dependencies (needed for PjRt distributed)
+  + tsl_grpc_cc_dependencies()
 )
 
 # This is the genrule used by TF install headers to correctly
@@ -268,3 +267,4 @@ genrule(
     tar czf "$@" xla_extension
   """
 )
+

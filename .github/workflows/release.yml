@@ -51,10 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           XLA_TARGET: cpu
-      - run: .github/scripts/compile_and_upload.sh ${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          XLA_TARGET: tpu
+          CC: gcc-9
 
   macos:
     name: "x86_64-darwin-cpu"
@@ -86,7 +83,7 @@ jobs:
   macos_arm:
     name: "aarch64-darwin-cpu (cross-compiled)"
     needs: [create_draft_release]
-    runs-on: macos-13-xlarge
+    runs-on: macos-latest-large
     permissions:
       contents: write
     steps:
