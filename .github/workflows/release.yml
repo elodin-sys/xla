@@ -127,13 +127,17 @@ jobs:
           - container: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
             xla_target: cuda118
             cuda_version: "11.8.0"
+            cuda_version_short: "11.8"
             cudnn_version: "8.6.0"
             python: "3.11"
+            cudnn_file: "cudnn-local-repo-ubuntu2204-8.6.0.163_1.0-1_amd64.deb"
           - container: nvidia/cuda:12.0.0-cudnn8-devel-ubuntu20.04
             xla_target: cuda120
             cuda_version: "12.0.0"
+            cuda_version_short: "12.0"
             cudnn_version: "8.8.0"
             python: "3.11"
+            cudnn_file: "cudnn-local-repo-ubuntu2204-8.8.0.121_1.0-1_amd64.deb"
     container: ${{ matrix.container }}
     env:
       # Set the missing UTF-8 locale, otherwise Elixir warns
@@ -157,8 +161,13 @@ jobs:
           # Install a specific cuDNN version over the default one
           cuda_version="${{ matrix.cuda_version }}"
           cudnn_version="${{ matrix.cudnn_version }}"
+          cuda_version_short="${{ matrix.cuda_version_short }}"
+          cudnn_file="${{matrix.cudnn_file}}"
+          wget "https://developer.download.nvidia.com/compute/redist/cudnn/v${cudnn_version}/local_installers/${cuda_version_short}/${cudnn_file}"
+          dpkg -i ${cudnn_file}
           cudnn_package_version="$(apt-cache madison libcudnn8 | grep "${cudnn_version}.*-1+cuda${cuda_version%.*}")"
           apt-get install -y --allow-downgrades --allow-change-held-packages libcudnn8=$cudnn_package_version libcudnn8-dev=$cudnn_package_version
+
 
       # Prevent git from checking the repository owner and erroring with "dubious ownership"
       - run: git config --global --add safe.directory '*'
