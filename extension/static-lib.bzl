@@ -38,12 +38,10 @@ def _cc_static_library_impl(ctx):
 
     lib_paths = [lib.path for lib in libs]
 
-    ar_path = cc_toolchain.ar_executable
-    # FIXME ar_executable returned llvm-lib.exe on my system, but we want llvm-ar.exe
-    ar_path = ar_path.replace("llvm-lib.exe", "llvm-ar.exe")
+    ar_path = "llvm-ar"
 
     ctx.actions.run_shell(
-        command = "\"{0}\" rcs {1} {2} && echo -e 'create {1}\naddlib {1}\nsave\nend' | \"{0}\" -M".format(ar_path, output_lib.path, " ".join(lib_paths)),
+        command = "\"{0}\" rcT {1} {2} && echo -e 'create {1}\naddlib {1}\nsave\nend' | \"{0}\" -M".format(ar_path, output_lib.path, " ".join(lib_paths)),
         inputs = libs + cc_toolchain.all_files.to_list(),
         outputs = [output_lib],
         mnemonic = "ArMerge",
