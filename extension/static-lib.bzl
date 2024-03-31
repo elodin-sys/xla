@@ -43,7 +43,7 @@ def _cc_static_library_impl(ctx):
     ar_path = ar_path.replace("llvm-lib.exe", "llvm-ar.exe")
 
     ctx.actions.run_shell(
-        command = "\"{0}\" rcs {1} {2} && echo -e 'create {1}\naddlib {1}\nsave\nend' | \"{0}\" -M".format(ar_path, output_lib.path, " ".join(lib_paths)),
+        command = "\"{0}\" rc --thin {1} {2} && echo -e 'create {1}\naddlib {1}\nsave\nend' | \"{0}\" -M".format(ar_path, output_lib.path, " ".join(lib_paths)),
         inputs = libs + cc_toolchain.all_files.to_list(),
         outputs = [output_lib],
         mnemonic = "ArMerge",
